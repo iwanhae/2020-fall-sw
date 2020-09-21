@@ -1,6 +1,9 @@
+from datetime import datetime, timedelta
+import json
 import urllib.request
 
 from bs4 import BeautifulSoup
+
 
 def parse(date):
     list_total = []  # 해당날짜 전체 기사의 url list
@@ -29,17 +32,20 @@ def parse(date):
         sourcecode = urllib.request.urlopen(
             url).read()
         soup = BeautifulSoup(sourcecode, "html.parser", from_encoding='ANSI')
-        article.append({
-            "title": soup.find(id="vmNewsTitle").get_text().replace('\n', ''),
-            "body": soup.find("div", class_="text_area").get_text().replace('\n', ''),
-            "date": soup.find("span", class_="date").get_text().replace('\n', '')[2:12],
-            "link": url
-        })
+        try:
+            article.append({
+                "title": soup.find(id="vmNewsTitle").get_text().replace('\n', ''),
+                "body": soup.find("div", class_="text_area").get_text().replace('\n', ''),
+                "date": soup.find("span", class_="date").get_text().replace('\n', '')[2:12],
+                "link": url
+            })
+        except:
+            print(url)
+            continue
         print(url)
     return article
 
-from datetime import datetime, timedelta
-import json
+
 print(json.dumps(["한글"], ensure_ascii=False))
 print("한글")
 if __name__ == "__main__":
@@ -51,4 +57,3 @@ if __name__ == "__main__":
         tmp = parse(name)
         with open('tmp/' + name + '.json', 'w', encoding="utf-8") as f:
             f.write(json.dumps(tmp, ensure_ascii=False))
-
