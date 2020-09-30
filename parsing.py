@@ -28,7 +28,7 @@ def parse(date):
             list_total.append(i)
 
     # 기사 1개씩 탐색하며 list 에 추가
-    for url in list_total:
+    for i, url in enumerate(list_total):
         sourcecode = urllib.request.urlopen(
             url).read()
         soup = BeautifulSoup(sourcecode, "html.parser", from_encoding='ANSI')
@@ -42,14 +42,14 @@ def parse(date):
         except:
             print(url)
             continue
-        print(url)
+        print(i, len(list_total), url)
     return article
 
 
 print(json.dumps(["한글"], ensure_ascii=False))
 print("한글")
 if __name__ == "__main__":
-    d = datetime.strptime("20190508", "%Y%m%d").date()
+    d = datetime.strptime("20150106", "%Y%m%d").date()
     for i in range(3650):
         tmp = d - timedelta(days=i)
         name = tmp.strftime("%Y%m%d")
