@@ -1,0 +1,8 @@
+FROM continuumio/anaconda3:2020.07
+WORKDIR /usr/src/app
+
+RUN pip install pymongo
+
+COPY ./page_rank.py ./page_rank.py
+
+CMD [ "python3", "./page_rank.py" ]
