@@ -1,0 +1,122 @@
+swagger: "2.0"
+info:
+  description: "Swagger spec for KeyworD project."
+  version: "1.0.0"
+  title: "Swagger KeyworD"
+  contact:
+    email: "iwanhae@gmail.com"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/api"
+schemes:
+- "https"
+- "http"
+paths:
+  /request:
+    post:
+      summary: "Requset a new query"
+      description: "새로운 작업을 요청"
+      operationId: "newQuery"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Pet object that needs to be added to the store"
+        required: true
+        schema:
+          $ref: "#/definitions/Query"
+      responses:
+        "200":
+          description: "정상 처리시 아이디 반환"
+          schema:
+            type: object
+            properties: 
+              id:
+                type: string
+        "400":
+          description: "Invalid input"
+  /progress/{id}:
+    get:
+      operationId: "showProgress"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "query to lookup"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "정상 처리시 현재 상태 반환"
+          schema:
+            $ref: "#/definitions/Status"
+        "404":
+          description: "존재하지 않는 ID, total=-1"
+  /result/{id}:
+    get:
+      operationId: "showResult"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "query to lookup"
+        required: true
+        type: "string"
+      responses:
+        "200":
+          description: "정상 처리시 작업결과 반환"
+          schema:
+            $ref: "#/definitions/Result"
+        "400":
+          description: "Invalid input"
+        "404":
+          description: "존재하지 않는 ID"
+definitions:
+  Data:
+    type: "array"
+    items: 
+      type: "object"
+      properties: 
+        date:
+          type: string
+        value:
+          type: number
+  Query:
+    type: "object"
+    properties:
+      data:
+        $ref: "#/definitions/Data"
+  Status:
+    type: object
+    properties: 
+      total:
+        type: integer
+      current:
+        type: integer
+      message:
+        type: string
+  Result:
+    type: object
+    properties: 
+      from:
+        type: string
+        description: "시작날짜"
+      to:
+        type: string
+        description: "종료날짜"
+      data:
+        $ref: "#/definitions/Data"
+      related:
+        type: array
+        items: 
+          type: object
+          properties: 
+            keyword:
+              type: string
+            similarity:
+              type: number
+              description: "그래프간 유사도. 크면 클수록 좋음"
+            data:
+              $ref: "#/definitions/Data"
