@@ -90,20 +90,8 @@ export default {
       })
       console.log(data)
       if (data.length !== 0) {
-        try {
-          const res = await this.$axios.post('/request', data)
-          console.log(res)
-          const id = res.data.id
-          this.$router.push(`/processing/${id}`)
-        } catch (e) {
-          this.$message({
-            showClose: true,
-            message: e,
-            type: 'error'
-          })
-          return false
-        }
-
+        await this.$axios.get()
+        this.$router.push('/processing')
         return true
       }
       this.$message({

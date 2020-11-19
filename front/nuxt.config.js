@@ -40,7 +40,14 @@ export default {
   // Modules (https://go.nuxtjs.dev/config-modules)
   modules: [
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/proxy'
+  ],
+  proxy: [
+    // Proxies /foo to http://example.com/foo
+    'http://127.0.0.1:8080/request',
+    'http://127.0.0.1:8080/progress',
+    'http://127.0.0.1:8080/result'
   ],
 
   // Axios module configuration (https://go.nuxtjs.dev/config-axios)
