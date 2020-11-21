@@ -5,39 +5,7 @@
       <h1 class="title">
         keyword
       </h1>
-      <h5>2020년 2학기 서울시립대학교 소프트웨어응용</h5>
-      <h2>1조: 김현구, 이완해, 정진용</h2>
       <br>
-      <el-upload
-        class="upload-demo"
-        drag
-        action="https://jsonplaceholder.typicode.com/posts/"
-        :on-preview="handlePreview"
-        :on-remove="handleRemove"
-        :before-upload="beforeUpload"
-        :auto-upload="true"
-        :limit="1"
-        :http-request="upload"
-        :multiple="false"
-      >
-        <i class="el-icon-upload" />
-        <div class="el-upload__text">
-          Drop file here or <em>click to upload</em>
-        </div>
-        <div slot="tip" class="el-upload__tip">
-          only csv file can be uploaded
-        </div>
-      </el-upload>
-      <div class="links">
-        <a
-          href="https://github.com/iwanhae/2020-fall-sw"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-      </div>
     </div>
   </div>
 </template>
@@ -50,14 +18,6 @@ export default {
     }
   },
   methods: {
-    handleRemove (e) {
-      console.log('remove')
-      console.log(e)
-    },
-    handlePreview (e) {
-      console.log('preview')
-      console.log(e)
-    },
     beforeUpload (file) {
       console.log(file)
       if (file.name.endsWith('.csv')) {
@@ -90,8 +50,20 @@ export default {
       })
       console.log(data)
       if (data.length !== 0) {
-        await this.$axios.get()
-        this.$router.push('/processing')
+        try {
+          const res = await this.$axios.post('/request', data)
+          console.log(res)
+          const id = res.data.id
+          this.$router.push(`/processing/${id}`)
+        } catch (e) {
+          this.$message({
+            showClose: true,
+            message: e,
+            type: 'error'
+          })
+          return false
+        }
+
         return true
       }
       this.$message({

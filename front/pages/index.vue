@@ -12,8 +12,6 @@
         class="upload-demo"
         drag
         action="https://jsonplaceholder.typicode.com/posts/"
-        :on-preview="handlePreview"
-        :on-remove="handleRemove"
         :before-upload="beforeUpload"
         :auto-upload="true"
         :limit="1"
@@ -50,14 +48,6 @@ export default {
     }
   },
   methods: {
-    handleRemove (e) {
-      console.log('remove')
-      console.log(e)
-    },
-    handlePreview (e) {
-      console.log('preview')
-      console.log(e)
-    },
     beforeUpload (file) {
       console.log(file)
       if (file.name.endsWith('.csv')) {
