@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from db import getCol, getDB
 from finding import finding_related
 from bson.objectid import ObjectId
+from processBody import processBody
 import json
 import hashlib
 
@@ -65,17 +66,18 @@ def handleRequest():
         ]
     }
 
+    body = processBody(body)
     document["status"]["total"] = 1
     document["status"]["message"] = "요청처리 대기중입니다."
 
     # TODO: document["meta"] 채워주기
-    document["meta"]["from"] = datetime(2020, 1, 1)
-    document["meta"]["to"] = datetime(2020, 1, 1)
+    document["meta"]["from"] = body["data"][0]["date"]
+    document["meta"]["to"] = body["data"][len(body["data"])-1]["date"]
 
     # TODO: document["data"] 채워주기,
     # 1. 중간중간에 날짜는 있는데 값이 없는 경우가 있으니 해당 값은 중간값으로 넣어주기.
     # 2. date값이 string 형태로 들어오니 date 형태로 파싱하기
-    document["data"] = body
+    document["data"] = body["data"]
 
     col = getCol()
     res = col.insert_one(document)
