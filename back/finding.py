@@ -38,6 +38,24 @@ def movingmean(d, size = 3):
         data[i] = total / size
     return data
 
+def calVariance(data):
+    result=[0]
+    for i in range(1,len(data)):
+        if data[i]==data[i-1]:
+            result.append(0)
+        elif data[i]>data[i-1]:
+            result.append(1)
+        else:
+            result.append(-1)
+    return result
+
+def compData(keyResult, userResult):
+    compResult=0
+    for i in range(len(userResult)):
+        if keyResult[i]==userResult[i]:
+            compResult+=1
+    return compResult
+
 def finding_related():
     col = getCol()
     print("finding related 시작")
