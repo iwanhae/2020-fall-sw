@@ -1,6 +1,7 @@
 from db import getCol, getDB
 from datetime import datetime, timedelta
 import time
+import multiprocessing
 
 # 1, 0, -1 로 변환된 두 데이터의 유사도를 비교하는 함수 클수록 유사도가 높음
 
@@ -69,6 +70,12 @@ def sync(doc):
     return col.find_one_and_update({"_id": doc["_id"]}, {"$set": doc})
 
 
+def f(obj):
+    a = movingmean(obj[1], 7)  # db에 있는 키워드 주단위로 분석
+    b = obj[2]
+    return (obj[0], 1 - (compData(calVariance(a), calVariance(b)) / len(b)))
+
+
 def finding_related():
     col = getCol()
     print("finding related 시작")
@@ -125,15 +132,22 @@ def finding_related():
         doc["status"]["message"] = "데이터를 비교해보는 중입니다."
         sync(doc)
         start = time.time()
+        pool = multiprocessing.Pool()
+
+        tmp_dataset = []
         for key in keywords:
-            data_cmp = movingmean(keywords[key], 7)  # db에 있는 키워드 주단위로 분석
-            similarity = 1 - (compData(calVariance(data_cmp),
-                                       calVariance(data_req)) / len(data_req))
-            related_keys.append((key, similarity))
-            doc["status"]["current"] += 1
-            if time.time() - start > 1:
-                start = time.time()
+            tmp_dataset.append((key, keywords[key], data_req))
+            if len(tmp_dataset) == 2000:
+                tmp = pool.map(f, tmp_dataset)
+                tmp_dataset = []
+                related_keys.extend(tmp)
+                doc["status"]["current"] = len(related_keys)
                 sync(doc)
+        tmp = pool.map(f, tmp_dataset)
+        tmp_dataset = []
+        related_keys.extend(tmp)
+        doc["status"]["current"] = len(related_keys)
+        sync(doc)
         ########
         # Sort data
         ########
