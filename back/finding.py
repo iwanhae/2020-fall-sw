@@ -1,4 +1,5 @@
 from db import getCol, getDB
+from datetime import datetime, timedelta
 import time
 
 def fetchKeywords(since : datetime, until : datetime) -> {}:
@@ -53,10 +54,10 @@ def finding_related():
         since = doc["meta"]["from"]
         until = doc["meta"]["to"]
         tmp = fetchKeywords(since, until)
-        related_keys[]
+        related_keys = []
         for key in tmp:
             mean1 = movingmean(tmp[key], 7) # db에 있는 키워드 주단위로 분석
-            mean2 = movingmean(doc["data"][0]["value"]), 7) # 입력한 데이터 주단위로 분석
+            mean2 = movingmean(doc["data"][0]["value"], 7) # 입력한 데이터 주단위로 분석
             similarity = 1 - (compData(calVariance(mean2),calVariance(mean1)) / compData(calVariance(mean1),calVariance(mean1)))
             related_keys.append((key, similarity))
             doc["status"]["total"] = len(keywords)
