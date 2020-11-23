@@ -1,29 +1,30 @@
 from db import getCol, getDB
 from datetime import datetime, timedelta
 import time
+import numpy as np
+from numba import jit
 
 # 1, 0, -1 로 변환된 두 데이터의 유사도를 비교하는 함수 클수록 유사도가 높음
 
 
+@jit
 def compData(keyResult, userResult):
-    compResult = 0
-    for i in range(len(userResult)):
-        if keyResult[i] == userResult[i]:
-            compResult += 1
-    return compResult
+    return np.sum(keyResult == userResult)
 
 # 특정 키워드의 랭크 리스트값을 받아서 증감수치로만 변환해주는 함수
 
 
+@jit
 def calVariance(data):
-    result = [0]
+    result = np.zeros(shape=(1))
+    data = np.array(data)
     for i in range(1, len(data)):
         if data[i] == data[i-1]:
-            result.append(0)
+            result = np.append(result, 0)
         elif data[i] > data[i-1]:
-            result.append(1)
+            result = np.append(result, 1)
         else:
-            result.append(-1)
+            result = np.append(result, -1)
     return result
 
 
@@ -69,6 +70,7 @@ def sync(doc):
     return col.find_one_and_update({"_id": doc["_id"]}, {"$set": doc})
 
 
+@jit
 def finding_related():
     col = getCol()
     print("finding related 시작")
