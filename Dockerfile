@@ -5,8 +5,8 @@ RUN yarn
 COPY ./front/. .
 RUN yarn generate
 
-FROM python:3.8-buster
-RUN pip3 install pymongo python-dateutil
+FROM continuumio/anaconda3:2020.07
+RUN pip3 install pymongo
 COPY --from=builder /usr/src/app/dist ./dist
 COPY ./back/. .
 

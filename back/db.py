@@ -1,5 +1,6 @@
 import pymongo
 from datetime import datetime, timedelta
+import os
 
 # TASK Collection에 들어가는 문서 형태
 document = {
@@ -40,7 +41,7 @@ def getDB() -> pymongo.database.Database:
     client = pymongo.MongoClient(
         mongoUri.format(
             id="2020sw",
-            pw="changeme",  # os.environ['MONGO_PW'],
+            pw=os.environ['MONGO_PW'],
             endpoint="iwanhae.iptime.org",
             db="2020sw"
         ))
