@@ -1,79 +1,103 @@
 <template>
-  <div class="container">
-    <div>
-      <Logo />
-      <h1 class="title">
+  <div style="width:100%;">
+    <div style="width: 1024px;margin: 0px auto;text-align: center;">
+      <h1 class="title" style="margin:0 auto;">
         keyword
       </h1>
       <br>
+      <div style="display:flex">
+        <div style="width: 512px;display: block;">
+          입력
+          <canvas id="request" width="400" height="400" style="position: fixed;" />
+        </div>
+        <div style="width: 512px;display: block;">
+          결과
+          <div v-for="r in related" :key="r.keyword">
+            <h3 class="title" style="font-size: xxx-large;">
+              {{ r.keyword }} - {{ 100 - (Math.floor(r.similarity * 10000) / 100) }}%
+            </h3>
+            <canvas :id="r.keyword" width="400" height="400" />
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Chart from 'chart.js'
+
 export default {
   data () {
     return {
-      fileList: []
+      id: this.$route.params.id,
+      related: []
     }
   },
-  methods: {
-    beforeUpload (file) {
-      console.log(file)
-      if (file.name.endsWith('.csv')) {
-        return true
+  async mounted () {
+    const res = await this.$axios.get(`/result/${this.id}`)
+    console.log(res.data)
+    this.related = res.data.related
+    const data = res.data.data.map((e) => {
+      return {
+        x: new Date(e.date * 1000),
+        y: e.value
       }
-      this.$message({
-        showClose: true,
-        message: 'CSV 파일만 업로드가 가능합니다!',
-        type: 'warning'
-      })
-      return false
-    },
-    async upload (e) {
-      console.log(e)
-      console.log(e.file.size)
-      if (e.file.size > 1024 * 1024 * 2) {
-        return false
-      }
-      const fulltext = await e.file.text()
-      const data = []
-      fulltext.split('\n').forEach((line) => {
-        const tmp = line.split(',')
-        const date = new Date(tmp[0])
-        const value = parseFloat(tmp[1])
-        if (!isNaN(value)) {
-          data.push({
-            date, value
-          })
-        }
-      })
-      console.log(data)
-      if (data.length !== 0) {
-        try {
-          const res = await this.$axios.post('/request', data)
-          console.log(res)
-          const id = res.data.id
-          this.$router.push(`/processing/${id}`)
-        } catch (e) {
-          this.$message({
-            showClose: true,
-            message: e,
-            type: 'error'
-          })
-          return false
-        }
+    })
 
-        return true
-      }
-      this.$message({
-        showClose: true,
-        message: '데이터를 못찾았어요 :-(',
-        type: 'warning'
+    setTimeout(() => {
+      this.showGraph('request', 'Your data', data)
+      this.related.forEach((e) => {
+        const data = e.data.map((e) => {
+          return {
+            x: new Date(e.date * 1000),
+            y: e.value
+          }
+        })
+        this.showGraph(e.keyword, e.keyword, data)
       })
-      return false
+    }, 500)
+  },
+  methods: {
+    dynamicColors () {
+      const r = Math.floor(Math.random() * 255)
+      const g = Math.floor(Math.random() * 255)
+      const b = Math.floor(Math.random() * 255)
+      return 'rgb(' + r + ',' + g + ',' + b + ')'
+    },
+    showGraph (id, title, data) {
+      const ctx = document.getElementById(id)
+      // eslint-disable-next-line no-new
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          datasets: [{
+            label: title,
+            data,
+            borderColor: this.dynamicColors(),
+            fill: false
+          }]
+        },
+        options: {
+          tooltips: {
+            mode: 'index',
+            intersect: false
+          },
+          hover: {
+            mode: 'nearest',
+            intersect: true
+          },
+          scales: {
+            xAxes: [{
+              type: 'time'
+
+            }]
+          }
+        }
+      })
     }
   }
+
 }
 </script>
 

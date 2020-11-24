@@ -11,7 +11,7 @@
       <el-upload
         class="upload-demo"
         drag
-        action="https://jsonplaceholder.typicode.com/posts/"
+        action="/"
         :before-upload="beforeUpload"
         :auto-upload="true"
         :limit="1"
@@ -68,6 +68,7 @@ export default {
       }
       const fulltext = await e.file.text()
       const data = []
+      console.log(fulltext)
       fulltext.split('\n').forEach((line) => {
         const tmp = line.split(',')
         const date = new Date(tmp[0])

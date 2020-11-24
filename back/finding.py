@@ -71,27 +71,27 @@ def sync(doc):
 
 
 def f(obj):
-    a = movingmean(obj[1], 7)  # db에 있는 키워드 주단위로 분석
+    a = obj[1]
     b = obj[2]
     return (obj[0], 1 - (compData(calVariance(a), calVariance(b)) / len(b)))
 
 
 def finding_related():
     col = getCol()
-    print("finding related 시작")
+    print(col.delete_many({"finished": {"$in": [None, False]}}))
     while True:
         doc = col.find_one({"finished": {"$in": [None]}})
         if doc == None:
-            print("[finding related] 찾은게 없어요")
             time.sleep(1)  # 작업할게 없으면 1초 뒤 다시확인
             continue
-
+        print("[finding related] 새로운 작업")
         since = doc['meta']['from']
         until = doc['meta']['to']
         doc["finished"] = False
         doc["status"]["total"] = (until - since).days
         doc["status"]["current"] = 0
         doc["status"]["message"] = "데이터를 불러오는 중입니다."
+        print("[finding related] 데이터를 불러오는 중입니다.")
         sync(doc)
         ########
         # Fetch data
@@ -119,10 +119,24 @@ def finding_related():
             if time.time() - start > 1:
                 start = time.time()
                 sync(doc)
+                print("[finding related] 데이터를 불러오는 중입니다.",
+                      doc["status"]["current"])
         ########
         # Data Conversion
         ########
         data_req = list(map(lambda x: x['value'], doc['data']))
+
+        doc["status"]["total"] = len(keywords)
+        doc["status"]["current"] = 0
+        doc["status"]["message"] = "데이터를 변환하는 중입니다."
+        sync(doc)
+        start = time.time()
+        for key in keywords:
+            keywords[key] = movingmean(keywords[key], 7)
+            doc["status"]["current"] += 1
+            if time.time() - start > 1:
+                sync(doc)
+                start = time.time()
         ########
         # Compare data
         ########
@@ -174,4 +188,5 @@ def finding_related():
         doc['status']['total'] = 2
         doc['status']['current'] = 2
         doc["status"]["message"] = "완료되었습니다. :-)"
+        doc["finished"] = True
         sync(doc)

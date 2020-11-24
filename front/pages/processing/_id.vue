@@ -7,6 +7,7 @@
       </h1>
       <h2>{{ message }}</h2>
       <h2>{{ current }} / {{ total }}</h2>
+      <el-progress type="circle" :percentage="Math.floor(current / total * 100)" />
     </div>
   </div>
 </template>

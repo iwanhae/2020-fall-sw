@@ -112,6 +112,11 @@ def server_static(filepath):
         return static_file("index.html", root='dist')
 
 
+@app.route('/')
+def index():
+    return static_file("index.html", root='dist')
+
+
 if __name__ == '__main__':
     #col = getCol()
     # col.delete_many({})
